@@ -9,6 +9,14 @@ class MasterpieceId(UUID):
     pass
 
 
+class VariantId(UUID):
+    pass
+
+
+class OwnerId(UUID):
+    pass
+
+
 @dataclass(frozen=True)
 class MasterpieceEvent:
     masterpiece_id: MasterpieceId
@@ -16,6 +24,11 @@ class MasterpieceEvent:
 
 class MasterpieceAvailableEvent(MasterpieceEvent):
     pass
+
+
+@dataclass(frozen=True)
+class MasterpieceBlocked(MasterpieceEvent):
+    owner_id: OwnerId
 
 
 class Masterpiece:

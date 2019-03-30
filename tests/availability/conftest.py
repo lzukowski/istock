@@ -9,6 +9,8 @@ from istock.availability import (
     AvailabilityModule,
     AvailabilityListener,
     MasterpieceId,
+    VariantId,
+    OwnerId,
     AvailabilityEvent,
 )
 from istock.availability.exceptions import AlreadyRegistered, NotFound
@@ -49,3 +51,13 @@ def container():
 @fixture
 def new_masterpiece_id():
     yield MasterpieceId(hex=uuid1().hex)
+
+
+@fixture
+def new_variant_id():
+    yield VariantId(hex=uuid1().hex)
+
+
+@fixture
+def new_owner_id():
+    yield OwnerId(hex=uuid1().hex)
