@@ -29,7 +29,6 @@ setup(
         include=path_in_project('istock*'),
         exclude=['tests*'],
     ),
-    include_package_data=True,
     classifiers=[
         'Intended Audience :: Developers',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',

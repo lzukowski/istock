@@ -1,0 +1,5 @@
+[pylint]
+disable=missing-docstring,disable=missing-docstring,invalid-name,too-few-public-methods
+ignore-docstrings = yes
+max-line-length=79
+expected-line-ending-format=LF

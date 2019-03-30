@@ -1,0 +1,15 @@
+# Python compiled files
+__pycache__
+*.py[cod]
+.pytest_cache
+
+# Python packages
+*.egg-info
+.eggs
+dist
+build
+
+# Tests
+.cache
+.coverage
+.tox
