@@ -1,6 +1,15 @@
-from injector import Module, inject
+from injector import Module, inject, Binder
 
-from .masterpiece import AvailabilityEvent, AvailableEvent, MasterpieceId
+from .events import (
+    AvailabilityEvent,
+    AvailabilityListener,
+    NotEmittingListener,
+)
+from .masterpiece import (
+    MasterpieceId,
+    MasterpieceEvent,
+    MasterpieceAvailableEvent,
+)
 from .register import Register
 
 
@@ -13,13 +22,16 @@ class AvailabilityService:
 
 
 class AvailabilityModule(Module):
-    pass
+    def configure(self, binder: Binder) -> None:
+        binder.bind(AvailabilityListener, to=NotEmittingListener)
 
 
 __all__ = [
     'MasterpieceId',
+    'AvailabilityListener',
     'AvailabilityEvent',
-    'AvailableEvent',
+    'MasterpieceEvent',
+    'MasterpieceAvailableEvent',
     'AvailabilityService',
     'AvailabilityModule',
 ]

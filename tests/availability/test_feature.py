@@ -1,9 +1,24 @@
 from uuid import uuid1
 
-from pytest import fixture, mark
+from injector import SingletonScope
+from pytest import fixture
 from pytest_bdd import given, when, then, scenario
 
-from istock.availability import MasterpieceId, AvailabilityService
+from istock.availability import (
+    MasterpieceId,
+    AvailabilityService,
+    AvailabilityListener,
+    MasterpieceAvailableEvent,
+)
+from .conftest import QueueEventListener
+
+
+@fixture(autouse=True)
+def event_listener(container):
+    container.binder.bind(
+        AvailabilityListener, to=QueueEventListener, scope=SingletonScope,
+    )
+    return container.get(AvailabilityListener)
 
 
 @fixture
@@ -22,11 +37,15 @@ def register_masterpiece(availability):
 
 
 @then('masterpiece is available')
-def check_masterpiece_availability():
-    assert False
+def check_masterpiece_availability(event_listener):
+    assert any(
+        [
+            isinstance(e.payload, MasterpieceAvailableEvent)
+            for e in event_listener.events
+        ]
+    )
 
 
-@mark.xfail(reason='Not implemented yet')
 @scenario('availability.feature', 'Registering masterpiece')
 def test_registering_masterpiece():
     pass

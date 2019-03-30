@@ -1,7 +1,7 @@
-from abc import abstractmethod, ABCMeta
-from copy import copy
+from abc import ABCMeta, abstractmethod
+from collections import deque
 from dataclasses import dataclass
-from typing import List
+from typing import List, Deque
 from uuid import UUID
 
 
@@ -10,27 +10,27 @@ class MasterpieceId(UUID):
 
 
 @dataclass(frozen=True)
-class AvailabilityEvent:
+class MasterpieceEvent:
     masterpiece_id: MasterpieceId
 
 
-class AvailableEvent(AvailabilityEvent):
+class MasterpieceAvailableEvent(MasterpieceEvent):
     pass
 
 
 class Masterpiece:
     def __init__(self, masterpiece_id: MasterpieceId):
         self._id = masterpiece_id
-        self._events: List[AvailabilityEvent] = []
-        self._events.append(AvailableEvent(masterpiece_id))
+        self._events: Deque[MasterpieceEvent] = deque()
+        self._events.append(MasterpieceAvailableEvent(masterpiece_id))
 
     @property
     def id(self) -> MasterpieceId:
         return self._id
 
     @property
-    def events_to_emit(self) -> List[AvailabilityEvent]:
-        return copy(self._events)
+    def events_to_emit(self) -> List[MasterpieceEvent]:
+        return list(self._events)
 
 
 class MasterpieceRepository(metaclass=ABCMeta):
