@@ -1,7 +1,5 @@
-from collections import deque
-from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Deque
+from typing import Dict
 from uuid import uuid1
 
 from injector import Injector, SingletonScope, inject
@@ -35,17 +33,6 @@ class InMemoryMasterpieceRepository(MasterpieceRepository):
         if masterpiece_id not in self._masterpieces:
             raise NotFound(masterpiece_id)
         return self._masterpieces[masterpiece_id]
-
-
-@dataclass
-class QueueEventListener(AvailabilityListener):
-    events: Deque[AvailabilityEvent] = field(default_factory=deque)
-
-    def emit(self, event: AvailabilityEvent) -> None:
-        self.events.append(event)
-
-    def reset(self) -> None:
-        self.events = deque()
 
 
 @fixture
