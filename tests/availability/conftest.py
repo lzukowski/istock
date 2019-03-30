@@ -1,6 +1,7 @@
 from typing import Dict
+from uuid import uuid1
 
-from injector import Injector
+from injector import Injector, SingletonScope
 from pytest import fixture
 
 from istock.availability import AvailabilityModule, MasterpieceId
@@ -29,5 +30,11 @@ def container():
     container = Injector(AvailabilityModule)
     container.binder.bind(
         MasterpieceRepository, to=InMemoryMasterpieceRepository,
+        scope=SingletonScope,
     )
     return container
+
+
+@fixture
+def new_masterpiece_id():
+    yield MasterpieceId(hex=uuid1().hex)

@@ -1,6 +1,6 @@
 from injector import Module, inject
 
-from .masterpiece import MasterpieceId
+from .masterpiece import AvailabilityEvent, AvailableEvent, MasterpieceId
 from .register import Register
 
 
@@ -18,6 +18,8 @@ class AvailabilityModule(Module):
 
 __all__ = [
     'MasterpieceId',
+    'AvailabilityEvent',
+    'AvailableEvent',
     'AvailabilityService',
     'AvailabilityModule',
 ]
