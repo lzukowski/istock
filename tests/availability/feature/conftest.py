@@ -9,6 +9,7 @@ from istock.availability import (
     AvailabilityService,
     AvailabilityListener,
     AvailabilityEvent,
+    MasterpieceEvent,
 )
 
 
@@ -21,6 +22,9 @@ class QueueEventListener(AvailabilityListener):
 
     def reset(self) -> None:
         self.events = deque()
+
+    def domain_event_was_emitted(self, event: MasterpieceEvent) -> bool:
+        return any([e.payload == event for e in self.events])
 
 
 @fixture

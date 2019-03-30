@@ -11,17 +11,14 @@ def masterpiece_id():
 
 
 @when('merchant is publishing masterpiece')
-def register_masterpiece(availability):
+def register_masterpiece(availability, masterpiece_id):
     availability.register(masterpiece_id)
 
 
 @then('masterpiece is available')
-def check_masterpiece_availability(event_listener):
-    assert any(
-        [
-            isinstance(e.payload, MasterpieceAvailableEvent)
-            for e in event_listener.events
-        ]
+def check_masterpiece_availability(event_listener, masterpiece_id):
+    assert event_listener.domain_event_was_emitted(
+        MasterpieceAvailableEvent(masterpiece_id)
     )
 
 
