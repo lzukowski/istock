@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pytest import fixture
 
@@ -35,7 +35,7 @@ class TestMasterpieceReservation:
 
     @fixture
     def deadline(self):
-        return datetime.now()
+        return datetime.now() + timedelta(7)
 
     def test_blocked_when_reserving(
             self, masterpiece, variant_id, owner_id, deadline,
@@ -48,10 +48,7 @@ class TestMasterpieceReservation:
             self, masterpiece, variant_id, owner_id, deadline,
     ):
         assert masterpiece.reserve(variant_id, owner_id, deadline) is True
-
-        assert masterpiece.reserve(
-            variant_id, owner_id, datetime.now()
-        ) is False
+        assert masterpiece.reserve(variant_id, owner_id, deadline) is False
 
     def test_fail_when_reserving_masterpiece_already_blocked_by_other_owner(
             self, masterpiece, variant_id, owner_id, deadline,
@@ -59,11 +56,20 @@ class TestMasterpieceReservation:
         assert masterpiece.reserve(variant_id, owner_id, deadline) is True
 
         assert masterpiece.reserve(
-            variant_id, OwnerId.new(), datetime.now(),
+            variant_id, OwnerId.new(), deadline,
         ) is False
         assert masterpiece.reserve(
-            variant_id, OwnerId.new(), datetime.now(),
+            variant_id, OwnerId.new(), deadline,
         ) is False
         assert masterpiece.reserve(
-            VariantId.new(), OwnerId.new(), datetime.now(),
+            VariantId.new(), OwnerId.new(), deadline,
         ) is False
+
+    def test_succeed_when_reserving_masterpiece_with_expired_reservation(
+            self, masterpiece, variant_id, owner_id, deadline,
+    ):
+        expired_deadline = datetime.now() - timedelta(1)
+        assert masterpiece.reserve(variant_id, owner_id, expired_deadline)
+        assert masterpiece.reserve(
+            VariantId.new(), OwnerId.new(), deadline,
+        ) is True

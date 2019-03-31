@@ -12,7 +12,7 @@ T = TypeVar('T')
 class InternalId(UUID, Generic[T]):
     @classmethod
     def new(cls: Type[T]) -> T:
-        return uuid1()
+        return cls(hex=uuid1().hex)
 
 
 class MasterpieceId(InternalId):
@@ -83,10 +83,20 @@ class Masterpiece:
         return True
 
     def _is_variant_already_reserved(self, variant_id: VariantId) -> bool:
-        return any([r.variant_id == variant_id for r in self._reservations])
+        return any(
+            [
+                r.variant_id == variant_id for r in self._reservations
+                if r.deadline > datetime.now()
+            ]
+        )
 
     def _is_masterpiece_reserved_for_other_merchant(self, owner_id) -> bool:
-        return any([r.owner_id != owner_id for r in self._reservations])
+        return any(
+            [
+                r.owner_id != owner_id for r in self._reservations
+                if r.deadline > datetime.now()
+            ]
+        )
 
 
 class MasterpieceRepository(metaclass=ABCMeta):

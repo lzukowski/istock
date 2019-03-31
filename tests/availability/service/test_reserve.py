@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from pytest import fixture, mark
+from pytest import fixture
 from pytest_bdd import scenario, given, when, then
 
 from istock.availability import (
@@ -110,7 +110,6 @@ def expired_reservation_masterpiece_id(container, masterpiece_id):
     return masterpiece_id
 
 
-@mark.xfail(reason='Not implemented yet')
 @scenario(
     'reserve.feature',
     'Reserving masterpiece variant when previous reservation expires',
