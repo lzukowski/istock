@@ -1,5 +1,7 @@
+from collections import deque
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Deque
 from uuid import uuid1
 
 from injector import Injector, SingletonScope, inject
@@ -12,6 +14,7 @@ from istock.availability import (
     VariantId,
     OwnerId,
     AvailabilityEvent,
+    MasterpieceEvent,
 )
 from istock.availability.exceptions import AlreadyRegistered, NotFound
 from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
@@ -35,6 +38,20 @@ class InMemoryMasterpieceRepository(MasterpieceRepository):
         if masterpiece_id not in self._masterpieces:
             raise NotFound(masterpiece_id)
         return self._masterpieces[masterpiece_id]
+
+
+@dataclass
+class QueueEventListener(AvailabilityListener):
+    events: Deque[AvailabilityEvent] = field(default_factory=deque)
+
+    def emit(self, event: AvailabilityEvent) -> None:
+        self.events.append(event)
+
+    def reset(self) -> None:
+        self.events = deque()
+
+    def domain_event_was_emitted(self, event: MasterpieceEvent) -> bool:
+        return any([e.payload == event for e in self.events])
 
 
 @fixture

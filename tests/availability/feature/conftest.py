@@ -1,30 +1,8 @@
-from collections import deque
-from dataclasses import dataclass, field
-from typing import Deque
-
 from injector import SingletonScope
 from pytest import fixture
 
-from istock.availability import (
-    AvailabilityService,
-    AvailabilityListener,
-    AvailabilityEvent,
-    MasterpieceEvent,
-)
-
-
-@dataclass
-class QueueEventListener(AvailabilityListener):
-    events: Deque[AvailabilityEvent] = field(default_factory=deque)
-
-    def emit(self, event: AvailabilityEvent) -> None:
-        self.events.append(event)
-
-    def reset(self) -> None:
-        self.events = deque()
-
-    def domain_event_was_emitted(self, event: MasterpieceEvent) -> bool:
-        return any([e.payload == event for e in self.events])
+from istock.availability import AvailabilityService, AvailabilityListener
+from tests.availability.conftest import QueueEventListener
 
 
 @fixture

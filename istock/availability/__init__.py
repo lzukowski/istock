@@ -9,26 +9,30 @@ from .masterpiece import (
     MasterpieceId,
     VariantId,
     OwnerId,
+    Masterpiece,
     MasterpieceEvent,
     MasterpieceAvailableEvent,
     MasterpieceBlocked,
+    MasterpieceRepository,
 )
-from .register import Register
-from .reserve import Reserve
 
 
 class AvailabilityService:
-    register: Register
-    reserve: Reserve
-
     @inject
-    def __init__(
+    def __init__(self, masterpiece_repo: MasterpieceRepository) -> None:
+        self._repo = masterpiece_repo
+
+    def register(self, masterpiece_id: MasterpieceId) -> None:
+        mp = Masterpiece(masterpiece_id)
+        self._repo.save(mp)
+
+    def reserve(
             self,
-            register_service: Register,
-            reserve_service: Reserve,
-    ) -> None:
-        self.register = register_service
-        self.reserve = reserve_service
+            masterpiece_id: MasterpieceId,
+            variant_id: VariantId,
+            owner_id: OwnerId,
+    ) -> bool:
+        raise NotImplementedError
 
 
 class AvailabilityModule(Module):
