@@ -47,6 +47,22 @@ class Reservation:
     owner_id: OwnerId
     deadline: datetime
 
+    @property
+    def in_force(self) -> bool:
+        return datetime.now() < self.deadline
+
+    def blocks(self, other: 'Reservation') -> bool:
+        if not self.in_force:
+            return False
+
+        if other.owner_id != self.owner_id:
+            return True
+
+        if other.variant_id == self.variant_id:
+            return True
+
+        return False
+
 
 class Masterpiece:
     _id: MasterpieceId
@@ -72,31 +88,15 @@ class Masterpiece:
             owner_id: OwnerId,
             deadline: datetime,
     ) -> bool:
-        if self._is_masterpiece_reserved_for_other_merchant(owner_id):
+        reservation = Reservation(variant_id, owner_id, deadline)
+        any_blockers = any([r.blocks(reservation) for r in self._reservations])
+
+        if any_blockers:
             return False
 
-        if self._is_variant_already_reserved(variant_id):
-            return False
-
-        self._reservations.append(Reservation(variant_id, owner_id, deadline))
+        self._reservations.append(reservation)
         self._events.append(MasterpieceBlocked(self.id, owner_id))
         return True
-
-    def _is_variant_already_reserved(self, variant_id: VariantId) -> bool:
-        return any(
-            [
-                r.variant_id == variant_id for r in self._reservations
-                if r.deadline > datetime.now()
-            ]
-        )
-
-    def _is_masterpiece_reserved_for_other_merchant(self, owner_id) -> bool:
-        return any(
-            [
-                r.owner_id != owner_id for r in self._reservations
-                if r.deadline > datetime.now()
-            ]
-        )
 
 
 class MasterpieceRepository(metaclass=ABCMeta):
