@@ -14,3 +14,8 @@ Feature: Reserving masterpiece
     Given reserved masterpiece variant
     When other buyer reserve other variant of masterpiece
     Then reservation is rejected
+
+  Scenario: Reserving masterpiece variant when previous reservation expires
+    Given expired masterpiece variant reservation
+    When customer reserve variant of masterpiece
+    Then masterpiece is reserved

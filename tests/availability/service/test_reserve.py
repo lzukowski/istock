@@ -1,9 +1,12 @@
-from pytest import fixture
+from datetime import datetime, timedelta
+
+from pytest import fixture, mark
 from pytest_bdd import scenario, given, when, then
 
 from istock.availability import (
-    OwnerId, VariantId, MasterpieceId, MasterpieceBlocked,
+    OwnerId, VariantId, MasterpieceId, MasterpieceBlocked, AvailabilityListener
 )
+from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
 
 
 @fixture
@@ -90,4 +93,27 @@ def check_reservation_by_other_buyer(reserve_variant_by_other_buyer):
     'Reserving masterpiece variant when other variation was already reserved',
 )
 def test_reserving_variant_when_other_customer_reserved_other_variant():
+    pass
+
+
+@given('expired masterpiece variant reservation')
+def expired_reservation_masterpiece_id(container, masterpiece_id):
+    masterpiece = Masterpiece(masterpiece_id)
+    masterpiece.reserve(
+        VariantId.new(),
+        OwnerId.new(),
+        deadline=datetime.now() - timedelta(days=3),
+    )
+
+    container.get(MasterpieceRepository).save(masterpiece)
+    container.get(AvailabilityListener).reset()
+    return masterpiece_id
+
+
+@mark.xfail(reason='Not implemented yet')
+@scenario(
+    'reserve.feature',
+    'Reserving masterpiece variant when previous reservation expires',
+)
+def test_reserving_masterpiece_when_no_active_reservations():
     pass
