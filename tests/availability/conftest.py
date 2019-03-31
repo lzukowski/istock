@@ -2,7 +2,6 @@ from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, Deque
-from uuid import uuid1
 
 from injector import Injector, SingletonScope, inject
 from pytest import fixture
@@ -11,8 +10,6 @@ from istock.availability import (
     AvailabilityModule,
     AvailabilityListener,
     MasterpieceId,
-    VariantId,
-    OwnerId,
     AvailabilityEvent,
     MasterpieceEvent,
 )
@@ -63,18 +60,3 @@ def container():
         scope=SingletonScope,
     )
     return container
-
-
-@fixture
-def new_masterpiece_id():
-    yield MasterpieceId(hex=uuid1().hex)
-
-
-@fixture
-def new_variant_id():
-    yield VariantId(hex=uuid1().hex)
-
-
-@fixture
-def new_owner_id():
-    yield OwnerId(hex=uuid1().hex)

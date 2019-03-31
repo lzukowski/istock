@@ -1,22 +1,24 @@
 from pytest import fixture, mark
 from pytest_bdd import scenario, given, when, then
 
-from istock.availability import MasterpieceBlocked
+from istock.availability import (
+    OwnerId, VariantId, MasterpieceId, MasterpieceBlocked,
+)
 
 
 @fixture
-def owner_id(new_owner_id):
-    return new_owner_id
+def owner_id():
+    return OwnerId.new()
 
 
 @fixture
-def variant_id(new_variant_id):
-    return new_variant_id
+def variant_id():
+    return VariantId.new()
 
 
 @fixture
-def masterpiece_id(new_masterpiece_id):
-    return new_masterpiece_id
+def masterpiece_id():
+    return MasterpieceId.new()
 
 
 @given('published masterpiece')
@@ -74,11 +76,9 @@ def test_second_reservation_of_variant():
 
 @fixture
 @when('other buyer reserve other variant of masterpiece')
-def reserve_variant_by_other_buyer(
-        availability, reserved_masterpiece_id, new_variant_id, new_owner_id,
-):
+def reserve_variant_by_other_buyer(availability, reserved_masterpiece_id):
     return availability.reserve(
-        reserved_masterpiece_id, new_variant_id, new_owner_id,
+        reserved_masterpiece_id, VariantId.new(), OwnerId.new(),
     )
 
 
