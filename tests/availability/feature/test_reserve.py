@@ -1,4 +1,4 @@
-from pytest import fixture, mark
+from pytest import fixture
 from pytest_bdd import scenario, given, when, then
 
 from istock.availability import (
@@ -41,7 +41,6 @@ def check_reserved_event(event_listener, masterpiece_id, owner_id):
     )
 
 
-@mark.xfail(reason='Not implemented yet', raises=NotImplementedError)
 @scenario('reserve.feature', 'Reserving masterpiece')
 def test_reserving_masterpiece():
     pass
@@ -68,7 +67,6 @@ def check_second_reservation(reserved_for_second_time):
     assert not reserved_for_second_time
 
 
-@mark.xfail(reason='Not implemented yet', raises=NotImplementedError)
 @scenario('reserve.feature', 'Reserving masterpiece variant for second time')
 def test_second_reservation_of_variant():
     pass
@@ -87,7 +85,6 @@ def check_reservation_by_other_buyer(reserve_variant_by_other_buyer):
     assert not reserve_variant_by_other_buyer
 
 
-@mark.xfail(reason='Not implemented yet', raises=NotImplementedError)
 @scenario(
     'reserve.feature',
     'Reserving masterpiece variant when other variation was already reserved',
