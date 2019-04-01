@@ -14,7 +14,8 @@ from .masterpiece import (
     Masterpiece,
     MasterpieceEvent,
     MasterpieceAvailableEvent,
-    MasterpieceBlocked,
+    MasterpieceBlockedEvent,
+    MasterpiecePermanentlyBlockedEvent,
     MasterpieceRepository,
 )
 
@@ -50,6 +51,17 @@ class AvailabilityService:
         self._repo.save(mp)
         return True
 
+    def block(
+            self,
+            masterpiece_id: MasterpieceId,
+            variant_id: VariantId,
+            owner_id: OwnerId,
+    ) -> bool:
+        mp = self._repo.get(masterpiece_id)
+        mp.block(variant_id, owner_id)
+        self._repo.save(mp)
+        return True
+
 
 class AvailabilityModule(Module):
     def configure(self, binder: Binder) -> None:
@@ -64,8 +76,9 @@ __all__ = [
     'AvailabilityListener',
     'AvailabilityEvent',
     'MasterpieceEvent',
-    'MasterpieceBlocked',
     'MasterpieceAvailableEvent',
+    'MasterpieceBlockedEvent',
+    'MasterpiecePermanentlyBlockedEvent',
     'AvailabilityService',
     'AvailabilityModule',
 ]

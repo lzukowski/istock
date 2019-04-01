@@ -7,7 +7,7 @@ from istock.availability import (
     OwnerId,
     VariantId,
     MasterpieceId,
-    MasterpieceBlocked,
+    MasterpieceBlockedEvent,
 )
 from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
 
@@ -43,7 +43,7 @@ def reserve_variant_of_masterpiece(
 @then('masterpiece is reserved')
 def check_reserved_event(event_listener, masterpiece_id, owner_id):
     assert event_listener.domain_event_was_emitted(
-        MasterpieceBlocked(masterpiece_id, owner_id)
+        MasterpieceBlockedEvent(masterpiece_id, owner_id)
     )
 
 
