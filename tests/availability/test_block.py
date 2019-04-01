@@ -191,3 +191,42 @@ def check_buying_of_new_variation(new_variation_blocking):
 )
 def test_buying_new_variation_of_blocked_masterpiece():
     pass
+
+
+@given('<processed> masterpiece')
+def processed_masterpiece_id(
+        processed, availability, masterpiece_id, variant_id, owner_id,
+):
+    print(processed)
+    process = getattr(availability, processed)
+    assert process(masterpiece_id, variant_id, owner_id)
+    return masterpiece_id
+
+
+@fixture
+@when('same buyer wants to buy same variation of masterpiece')
+def buy_same_variation(
+        availability, masterpiece_id, variant_id, owner_id,
+        event_listener_cleanup, masterpiece_permanently_blocked,
+):
+    event_listener_cleanup()
+    return availability.block(masterpiece_id, variant_id, owner_id)
+
+
+@then('blocking is rejected')
+def check_if_variation_was_bought_second_time(buy_same_variation):
+    assert buy_same_variation is False
+
+
+@scenario(
+    'block.feature',
+    'Buying same variation of masterpiece',
+    example_converters={
+        'processed': {
+            'reserved': 'reserve',
+            'purchased': 'block',
+        }.get
+    }
+)
+def test_buying_same_variation_of_blocked_masterpiece():
+    pass

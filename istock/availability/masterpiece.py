@@ -66,8 +66,9 @@ class Reservation:
         if other.owner_id != self.owner_id:
             return True
 
-        if other.variant_id == self.variant_id and not other.permanent:
-            return True
+        if other.variant_id == self.variant_id:
+            if self.permanent:
+                return True
 
         return False
 

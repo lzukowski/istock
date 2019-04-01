@@ -34,3 +34,12 @@ Feature: Blocking masterpiece
       | action  |
       | reserve |
       | buy     |
+
+  Scenario Outline: Buying same variation of masterpiece
+    Given <processed> masterpiece
+    When same buyer wants to buy same variation of masterpiece
+    Then blocking is rejected
+    Examples:
+      | processed |
+      | reserved  |
+      | purchased |
