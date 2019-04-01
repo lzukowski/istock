@@ -4,6 +4,10 @@ Feature: Blocking masterpiece
     Given published masterpiece
 
   Scenario: Buying masterpiece
-    When masterpiece was reserved
-    And masterpiece was bought
+    Given masterpiece was reserved
+    When masterpiece was bought
     Then masterpiece is reserved as permanent block
+
+  Scenario: Buying not reserved masterpiece
+    When buying not reserved masterpiece
+    Then not reserved masterpiece is reserved as permanent block
