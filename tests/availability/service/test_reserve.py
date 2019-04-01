@@ -76,6 +76,27 @@ def test_second_reservation_of_variant():
 
 
 @fixture
+@when('owner reserve other variant of masterpiece')
+def other_variant_reserved(availability, reserved_masterpiece_id, owner_id):
+    return availability.reserve(
+        reserved_masterpiece_id, VariantId.new(), owner_id,
+    )
+
+
+@then('variant is reserved')
+def check_reservation_of_other_variant(other_variant_reserved):
+    assert other_variant_reserved
+
+
+@scenario(
+    'reserve.feature',
+    'Reserving masterpiece variant when other variation was already reserved',
+)
+def test_reserving_variant_when_other_customer_reserved_other_variant():
+    pass
+
+
+@fixture
 @when('other buyer reserve other variant of masterpiece')
 def reserve_variant_by_other_buyer(availability, reserved_masterpiece_id):
     return availability.reserve(
@@ -88,11 +109,8 @@ def check_reservation_by_other_buyer(reserve_variant_by_other_buyer):
     assert not reserve_variant_by_other_buyer
 
 
-@scenario(
-    'reserve.feature',
-    'Reserving masterpiece variant when other variation was already reserved',
-)
-def test_reserving_variant_when_other_customer_reserved_other_variant():
+@scenario('reserve.feature', 'Reserving blocked masterpiece by other buyer')
+def test_reserving_masterpiece_by_other_buyer():
     pass
 
 

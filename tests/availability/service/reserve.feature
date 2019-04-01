@@ -12,6 +12,11 @@ Feature: Reserving masterpiece
 
   Scenario: Reserving masterpiece variant when other variation was already reserved
     Given reserved masterpiece variant
+    When owner reserve other variant of masterpiece
+    Then variant is reserved
+
+  Scenario: Reserving blocked masterpiece by other buyer
+    Given reserved masterpiece variant
     When other buyer reserve other variant of masterpiece
     Then reservation is rejected
 
