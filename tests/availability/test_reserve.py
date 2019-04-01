@@ -4,7 +4,10 @@ from pytest import fixture
 from pytest_bdd import scenario, given, when, then
 
 from istock.availability import (
-    OwnerId, VariantId, MasterpieceId, MasterpieceBlocked, AvailabilityListener
+    OwnerId,
+    VariantId,
+    MasterpieceId,
+    MasterpieceBlocked,
 )
 from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
 
@@ -115,7 +118,9 @@ def test_reserving_masterpiece_by_other_buyer():
 
 
 @given('expired masterpiece variant reservation')
-def expired_reservation_masterpiece_id(container, masterpiece_id):
+def expired_reservation_masterpiece_id(
+        container, event_listener_cleanup, masterpiece_id,
+):
     masterpiece = Masterpiece(masterpiece_id)
     masterpiece.reserve(
         VariantId.new(),
@@ -124,7 +129,7 @@ def expired_reservation_masterpiece_id(container, masterpiece_id):
     )
 
     container.get(MasterpieceRepository).save(masterpiece)
-    container.get(AvailabilityListener).reset()
+    event_listener_cleanup()
     return masterpiece_id
 
 

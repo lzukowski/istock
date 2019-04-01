@@ -7,9 +7,10 @@ from injector import Injector, SingletonScope, inject
 from pytest import fixture
 
 from istock.availability import (
+    MasterpieceId,
+    AvailabilityService,
     AvailabilityModule,
     AvailabilityListener,
-    MasterpieceId,
     AvailabilityEvent,
     MasterpieceEvent,
 )
@@ -59,4 +60,23 @@ def container():
         to=InMemoryMasterpieceRepository,
         scope=SingletonScope,
     )
+    container.binder.bind(
+        AvailabilityListener, to=QueueEventListener, scope=SingletonScope,
+    )
     return container
+
+
+@fixture
+def availability(container):
+    return container.get(AvailabilityService)
+
+
+@fixture
+def event_listener(container):
+    return container.get(AvailabilityListener)
+
+
+@fixture(autouse=True)
+def event_listener_cleanup(event_listener):
+    event_listener.reset()
+    return event_listener.reset
