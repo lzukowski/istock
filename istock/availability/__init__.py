@@ -58,7 +58,8 @@ class AvailabilityService:
             owner_id: OwnerId,
     ) -> bool:
         mp = self._repo.get(masterpiece_id)
-        mp.block(variant_id, owner_id)
+        if not mp.block(variant_id, owner_id):
+            return False
         self._repo.save(mp)
         return True
 

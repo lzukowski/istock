@@ -108,11 +108,17 @@ class Masterpiece:
 
     def block(self, variant_id: VariantId, owner_id: OwnerId) -> bool:
         reservation = Reservation(variant_id, owner_id, None)
+
+        any_blockers = any([r.blocks(reservation) for r in self._reservations])
+        if any_blockers:
+            return False
+
         only_permanent_reservations = [
             r for r in self._reservations if r.permanent
         ]
         only_permanent_reservations.append(reservation)
         self._reservations = only_permanent_reservations
+
         self._events.append(
             MasterpiecePermanentlyBlockedEvent(self.id, owner_id),
         )

@@ -33,14 +33,20 @@ def published_masterpiece_id(
     return masterpiece_id
 
 
-@given('masterpiece was reserved')
-def reserve_variant_id(
+@fixture
+def reserved_variant_id(
         availability, event_listener_cleanup, masterpiece_id, variant_id,
         owner_id,
 ):
     assert availability.reserve(masterpiece_id, variant_id, owner_id)
     event_listener_cleanup()
     return variant_id
+
+
+@mark.usefixtures('reserved_variant_id')
+@given('masterpiece was reserved')
+def reserve_variant(reserved_variant_id):
+    return reserved_variant_id
 
 
 @fixture
@@ -91,4 +97,27 @@ def check_if_not_reserved_masterpiece_was_blocked(
 
 @scenario('block.feature', 'Buying not reserved masterpiece')
 def test_buying_not_reserved_masterpiece():
+    pass
+
+
+@fixture
+@when('other buyer wants to buy <variant> of masterpiece')
+def blocking_masterpiece_reserved_by_other_buyer(
+        variant, availability, masterpiece_id, reserved_variant_id,
+):
+    check_variant = (
+        reserved_variant_id if variant == 'same variant' else VariantId.new()
+    )
+    return availability.block(masterpiece_id, check_variant, OwnerId.new())
+
+
+@then('reservation is rejected')
+def check_reservation_by_other_buyer(
+        blocking_masterpiece_reserved_by_other_buyer,
+):
+    assert not blocking_masterpiece_reserved_by_other_buyer
+
+
+@scenario('block.feature', 'Buying masterpiece reserved by other buyer')
+def test_buying_masterpiece_already_reserved():
     pass
