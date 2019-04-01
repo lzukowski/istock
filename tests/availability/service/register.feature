@@ -1,4 +1,4 @@
-Feature: Masterpiece availability management service
+Feature: Registering masterpiece in availability service
 
   Scenario: Registering masterpiece
     Given masterpiece

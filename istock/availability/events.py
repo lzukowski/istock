@@ -19,5 +19,5 @@ class AvailabilityListener(metaclass=ABCMeta):
 
 
 class NotEmittingListener(AvailabilityListener):
-    def emit(self, event: AvailabilityEvent) -> None:
+    def emit(self, event: AvailabilityEvent) -> None:  # pragma: no cover
         pass

@@ -2,7 +2,6 @@ from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, Deque
-from uuid import uuid1
 
 from injector import Injector, SingletonScope, inject
 from pytest import fixture
@@ -12,6 +11,7 @@ from istock.availability import (
     AvailabilityListener,
     MasterpieceId,
     AvailabilityEvent,
+    MasterpieceEvent,
 )
 from istock.availability.exceptions import AlreadyRegistered, NotFound
 from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
@@ -47,6 +47,9 @@ class QueueEventListener(AvailabilityListener):
     def reset(self) -> None:
         self.events = deque()
 
+    def domain_event_was_emitted(self, event: MasterpieceEvent) -> bool:
+        return any([e.payload == event for e in self.events])
+
 
 @fixture
 def container():
@@ -57,8 +60,3 @@ def container():
         scope=SingletonScope,
     )
     return container
-
-
-@fixture
-def new_masterpiece_id():
-    yield MasterpieceId(hex=uuid1().hex)
