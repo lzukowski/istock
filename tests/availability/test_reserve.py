@@ -4,7 +4,10 @@ from pytest import fixture
 from pytest_bdd import scenario, given, when, then
 
 from istock.availability import (
-    OwnerId, VariantId, MasterpieceId, MasterpieceBlocked, AvailabilityListener
+    OwnerId,
+    VariantId,
+    MasterpieceId,
+    MasterpieceBlocked,
 )
 from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
 
@@ -76,6 +79,27 @@ def test_second_reservation_of_variant():
 
 
 @fixture
+@when('owner reserve other variant of masterpiece')
+def other_variant_reserved(availability, reserved_masterpiece_id, owner_id):
+    return availability.reserve(
+        reserved_masterpiece_id, VariantId.new(), owner_id,
+    )
+
+
+@then('variant is reserved')
+def check_reservation_of_other_variant(other_variant_reserved):
+    assert other_variant_reserved
+
+
+@scenario(
+    'reserve.feature',
+    'Reserving masterpiece variant when other variation was already reserved',
+)
+def test_reserving_variant_when_other_customer_reserved_other_variant():
+    pass
+
+
+@fixture
 @when('other buyer reserve other variant of masterpiece')
 def reserve_variant_by_other_buyer(availability, reserved_masterpiece_id):
     return availability.reserve(
@@ -88,16 +112,15 @@ def check_reservation_by_other_buyer(reserve_variant_by_other_buyer):
     assert not reserve_variant_by_other_buyer
 
 
-@scenario(
-    'reserve.feature',
-    'Reserving masterpiece variant when other variation was already reserved',
-)
-def test_reserving_variant_when_other_customer_reserved_other_variant():
+@scenario('reserve.feature', 'Reserving blocked masterpiece by other buyer')
+def test_reserving_masterpiece_by_other_buyer():
     pass
 
 
 @given('expired masterpiece variant reservation')
-def expired_reservation_masterpiece_id(container, masterpiece_id):
+def expired_reservation_masterpiece_id(
+        container, event_listener_cleanup, masterpiece_id,
+):
     masterpiece = Masterpiece(masterpiece_id)
     masterpiece.reserve(
         VariantId.new(),
@@ -106,7 +129,7 @@ def expired_reservation_masterpiece_id(container, masterpiece_id):
     )
 
     container.get(MasterpieceRepository).save(masterpiece)
-    container.get(AvailabilityListener).reset()
+    event_listener_cleanup()
     return masterpiece_id
 
 
