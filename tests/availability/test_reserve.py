@@ -68,7 +68,7 @@ def reserved_for_second_time(
     return availability.reserve(reserved_masterpiece_id, variant_id, owner_id)
 
 
-@then('reservation is rejected')
+@then('second reservation is rejected')
 def check_second_reservation(reserved_for_second_time):
     assert not reserved_for_second_time
 
@@ -107,7 +107,7 @@ def reserve_variant_by_other_buyer(availability, reserved_masterpiece_id):
     )
 
 
-@then('reservation is rejected')
+@then('other buyer reservation is rejected')
 def check_reservation_by_other_buyer(reserve_variant_by_other_buyer):
     assert not reserve_variant_by_other_buyer
 
@@ -138,4 +138,35 @@ def expired_reservation_masterpiece_id(
     'Reserving masterpiece variant when previous reservation expires',
 )
 def test_reserving_masterpiece_when_no_active_reservations():
+    pass
+
+
+@given('purchased masterpiece')
+def purchased_masterpiece_id(
+        availability, event_listener_cleanup, published_masterpiece_id,
+        variant_id, owner_id,
+):
+    assert availability.block(published_masterpiece_id, variant_id, owner_id)
+    event_listener_cleanup()
+    return published_masterpiece_id
+
+
+@fixture
+@when('same owner wants to reserve purchased variation')
+def reserve_purchased_variation(
+        availability, purchased_masterpiece_id, variant_id, owner_id,
+):
+    return availability.reserve(purchased_masterpiece_id, variant_id, owner_id)
+
+
+@then('reservation of purchased variation is rejected')
+def check_if_blocked_variation_was_reserved(reserve_purchased_variation):
+    assert reserve_purchased_variation is False
+
+
+@scenario(
+    'reserve.feature',
+    'Reserving already purchased variation of masterpiece',
+)
+def test_reserving_purchased_variation():
     pass

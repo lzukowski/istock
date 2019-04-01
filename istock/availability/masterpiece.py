@@ -70,6 +70,9 @@ class Reservation:
             if self.permanent:
                 return True
 
+            if not other.permanent:
+                return True
+
         return False
 
 
