@@ -157,3 +157,37 @@ def check_if_reserved_masterpiece_was_blocked_by_new_user(event_listener):
 @scenario('block.feature', 'Buying masterpiece which reservation expired')
 def test_buying_masterpiece_with_expired_reservation():
     pass
+
+
+@given('purchased masterpiece')
+def purchased_masterpiece_id(availability, masterpiece_id, owner_id):
+    assert availability.block(masterpiece_id, VariantId.new(), owner_id)
+    return masterpiece_id
+
+
+@fixture
+@when('same buyer wants to <action> other variation of masterpiece')
+def new_variation_blocking(
+        action, availability, purchased_masterpiece_id, owner_id,
+):
+    return getattr(availability, action)(
+        purchased_masterpiece_id, VariantId.new(), owner_id,
+    )
+
+
+@then('succeed with permanent variation block')
+def check_buying_of_new_variation(new_variation_blocking):
+    assert new_variation_blocking
+
+
+@scenario(
+    'block.feature', 'Buying other variation for already blocked masterpiece',
+    example_converters={
+        'action': {
+            'reserve': 'reserve',
+            'buy': 'block',
+        }.get
+    }
+)
+def test_buying_new_variation_of_blocked_masterpiece():
+    pass

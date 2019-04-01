@@ -25,3 +25,12 @@ Feature: Blocking masterpiece
     Given masterpiece with expired reservation
     When other buyer wants to buy masterpiece
     Then masterpiece is reserved as permanent block
+
+  Scenario Outline: Buying other variation for already blocked masterpiece
+    Given purchased masterpiece
+    When same buyer wants to <action> other variation of masterpiece
+    Then succeed with permanent variation block
+    Examples:
+      | action  |
+      | reserve |
+      | buy     |
