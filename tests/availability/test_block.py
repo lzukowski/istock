@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from pytest import fixture, mark
 from pytest_bdd import scenario, given, when, then
 
@@ -7,6 +9,7 @@ from istock.availability import (
     OwnerId,
     MasterpiecePermanentlyBlockedEvent,
 )
+from istock.availability.masterpiece import MasterpieceRepository
 
 
 @fixture
@@ -120,4 +123,37 @@ def check_reservation_by_other_buyer(
 
 @scenario('block.feature', 'Buying masterpiece reserved by other buyer')
 def test_buying_masterpiece_already_reserved():
+    pass
+
+
+@given('masterpiece with expired reservation')
+def expired_reserved_masterpiece_id(
+        container, published_masterpiece_id, owner_id,
+        event_listener_cleanup,
+):
+    masterpiece_repo = container.get(MasterpieceRepository)
+    masterpiece = masterpiece_repo.get(published_masterpiece_id)
+    masterpiece.reserve(
+        VariantId.new(), owner_id, datetime.now() - timedelta(1),
+    )
+    event_listener_cleanup()
+    return published_masterpiece_id
+
+
+@when('other buyer wants to buy masterpiece')
+def buying_masterpiece_with_expired_reservation(
+        availability, expired_reserved_masterpiece_id,
+):
+    assert availability.block(
+        expired_reserved_masterpiece_id, VariantId.new(), OwnerId.new(),
+    )
+
+
+@then('masterpiece is reserved as permanent block')
+def check_if_reserved_masterpiece_was_blocked_by_new_user(event_listener):
+    event_listener.domain_event_was_emitted(MasterpiecePermanentlyBlockedEvent)
+
+
+@scenario('block.feature', 'Buying masterpiece which reservation expired')
+def test_buying_masterpiece_with_expired_reservation():
     pass

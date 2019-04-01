@@ -20,3 +20,8 @@ Feature: Blocking masterpiece
       | variant       |
       | same variant  |
       | other variant |
+
+  Scenario: Buying masterpiece which reservation expired
+    Given masterpiece with expired reservation
+    When other buyer wants to buy masterpiece
+    Then masterpiece is reserved as permanent block
