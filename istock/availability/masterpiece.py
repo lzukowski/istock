@@ -50,7 +50,7 @@ ReservationEvent = Union[
 ]
 
 
-@dataclass(frozen=True)
+@dataclass
 class Reservation:
     variant_id: VariantId
     owner_id: OwnerId
