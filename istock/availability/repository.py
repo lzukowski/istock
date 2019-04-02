@@ -75,10 +75,11 @@ class MasterpieceSQLRepository(MasterpieceRepository):
         self._listener = listener
 
     def save(self, masterpiece: Masterpiece) -> None:
-        self._session.add(masterpiece)
-        self._session.flush()
-        for e in masterpiece.events_to_emit:
-            self._listener.emit(AvailabilityEvent(e, datetime.now()))
+        with self._session.begin(subtransactions=True):
+            self._session.add(masterpiece)
+            self._session.flush()
+            for e in masterpiece.events_to_emit:
+                self._listener.emit(AvailabilityEvent(e, datetime.now()))
 
     def get(self, masterpiece_id: MasterpieceId) -> Masterpiece:
         masterpiece = self._session.query(Masterpiece).get(masterpiece_id)
