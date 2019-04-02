@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Deque, TypeVar, Generic, Type, Optional
+from typing import List, Deque, TypeVar, Generic, Type, Optional, Union
 from uuid import UUID, uuid1
 
 
@@ -43,6 +43,11 @@ class MasterpieceBlockedEvent(MasterpieceEvent):
 
 class MasterpiecePermanentlyBlockedEvent(MasterpieceBlockedEvent):
     pass
+
+
+ReservationEvent = Union[
+    MasterpieceBlockedEvent, MasterpiecePermanentlyBlockedEvent,
+]
 
 
 @dataclass(frozen=True)
@@ -100,32 +105,26 @@ class Masterpiece:
             owner_id: OwnerId,
             deadline: datetime,
     ) -> bool:
-        reservation = Reservation(variant_id, owner_id, deadline)
-        any_blockers = any([r.blocks(reservation) for r in self._reservations])
+        return self._add_reservation(
+            Reservation(variant_id, owner_id, deadline),
+            MasterpieceBlockedEvent(self.id, owner_id),
+        )
 
+    def block(self, variant_id: VariantId, owner_id: OwnerId) -> bool:
+        return self._add_reservation(
+            Reservation(variant_id, owner_id, None),
+            MasterpiecePermanentlyBlockedEvent(self.id, owner_id),
+        )
+
+    def _add_reservation(
+            self, reservation: Reservation, event: ReservationEvent,
+    ) -> bool:
+        any_blockers = any([r.blocks(reservation) for r in self._reservations])
         if any_blockers:
             return False
 
         self._reservations.append(reservation)
-        self._events.append(MasterpieceBlockedEvent(self.id, owner_id))
-        return True
-
-    def block(self, variant_id: VariantId, owner_id: OwnerId) -> bool:
-        reservation = Reservation(variant_id, owner_id, None)
-
-        any_blockers = any([r.blocks(reservation) for r in self._reservations])
-        if any_blockers:
-            return False
-
-        only_permanent_reservations = [
-            r for r in self._reservations if r.permanent
-        ]
-        only_permanent_reservations.append(reservation)
-        self._reservations = only_permanent_reservations
-
-        self._events.append(
-            MasterpiecePermanentlyBlockedEvent(self.id, owner_id),
-        )
+        self._events.append(event)
         return True
 
 
