@@ -1,10 +1,14 @@
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import wraps
 from typing import Dict, Deque
 
 from injector import Injector, SingletonScope, inject
 from pytest import fixture
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker, Session
+from sqlalchemy.pool import QueuePool
 
 from istock.availability import (
     MasterpieceId,
@@ -16,6 +20,7 @@ from istock.availability import (
 )
 from istock.availability.exceptions import AlreadyRegistered, NotFound
 from istock.availability.masterpiece import Masterpiece, MasterpieceRepository
+from istock.availability.repository import metadata
 
 
 class InMemoryMasterpieceRepository(MasterpieceRepository):
@@ -52,8 +57,37 @@ class QueueEventListener(AvailabilityListener):
         return any([e.payload == event for e in self.events])
 
 
+@fixture(scope='session')
+def dbsession_global():
+    def _expire_all_session_wrapper(session, func):
+        @wraps(func)
+        def _wraps(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            session.expire_all()
+            return ret
+        return _wraps
+
+    engine = create_engine(
+        'sqlite:///:memory:', poolclass=QueuePool, echo=False,
+    )
+    metadata.create_all(engine)
+
+    dbsession = scoped_session(
+        sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    )
+    dbsession.flush = _expire_all_session_wrapper(dbsession, dbsession.flush)
+    return dbsession
+
+
+@fixture(scope='function')
+def dbsession(dbsession_global):
+    yield dbsession_global
+    dbsession_global.flush()
+    dbsession_global.rollback()
+
+
 @fixture
-def container():
+def container(dbsession):
     container = Injector(AvailabilityModule)
     container.binder.bind(
         MasterpieceRepository,
@@ -63,6 +97,7 @@ def container():
     container.binder.bind(
         AvailabilityListener, to=QueueEventListener, scope=SingletonScope,
     )
+    container.binder.bind(Session, to=dbsession)
     return container
 
 
